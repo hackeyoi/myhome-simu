@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>マイホーム予算シミュレーター — 返済額から「狙える物件価格」を逆算</title>
+<style>
+  :root{
+    --bg:#E9ECEA;
+    --card:#FCFCFB;
+    --ink:#1F2D3A;
+    --ink-soft:#62707C;
+    --line:#D7DCDF;
+    --in:#2C6E8F;        /* 入力系アクセント（青） */
+    --in-soft:#E3EDF1;
+    --goal:#B5793A;      /* 最終アンサー（琥珀） */
+    --goal-soft:#F3E6D4;
+    --reform:#7C9A6B;    /* リフォーム（緑） */
+    --cost:#B26B6B;      /* 諸費用（くすんだ赤） */
+    --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); line-height:1.7; -webkit-font-smoothing:antialiased;
+    padding:30px 18px 70px;
+  }
+  .wrap{max-width:880px; margin:0 auto}
+  h1{font-size:1.3rem; letter-spacing:-.01em; margin:0 0 4px}
+  .lead{font-size:.9rem; color:var(--ink-soft); margin:0 0 24px; max-width:56ch}
+  .lead b{color:var(--goal); font-weight:700}
+
+  .grid{display:grid; grid-template-columns:0.95fr 1.05fr; gap:18px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:15px; padding:20px}
+  .card h2{font-size:.82rem; font-weight:700; color:var(--ink-soft); margin:0 0 16px;
+           text-transform:uppercase; letter-spacing:.08em}
+
+  /* ---- 入力 ---- */
+  .field{margin-bottom:15px}
+  .field:last-child{margin-bottom:0}
+  label{display:block; font-size:.84rem; font-weight:600; margin-bottom:6px}
+  label .sub{font-weight:400; color:var(--ink-soft); font-size:.76rem; margin-left:6px}
+  .inputline{display:flex; align-items:center; gap:8px}
+  input{
+    flex:1; width:100%; padding:10px 12px; font-size:1rem; font-variant-numeric:tabular-nums;
+    border:1px solid var(--line); border-radius:9px; color:var(--ink); background:#fff;
+    text-align:right;
+  }
+  input:focus{outline:2px solid var(--in); outline-offset:1px; border-color:transparent}
+  .unit{font-size:.84rem; color:var(--ink-soft); white-space:nowrap; min-width:36px}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+
+  /* ---- 結果 ---- */
+  .rows{margin:0}
+  .r{display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; border-bottom:1px dashed var(--line)}
+  .r .name{font-size:.86rem; color:var(--ink-soft)}
+  .r .val{font-size:1.02rem; font-weight:600; font-variant-numeric:tabular-nums}
+  .r.sum .name{color:var(--ink); font-weight:700}
+  .r.sum .val{font-weight:700}
+  .r.minus .val{color:var(--cost)}
+  .r.reform .val{color:var(--reform)}
+
+  .goal{
+    margin-top:18px; background:var(--goal-soft); border:1px solid #E2C9A6;
+    border-radius:12px; padding:16px 18px; text-align:center;
+  }
+  .goal .lab{font-size:.82rem; font-weight:700; color:var(--goal)}
+  .goal .big{font-size:2.1rem; font-weight:800; color:var(--goal); font-variant-numeric:tabular-nums; line-height:1.2; margin-top:2px}
+  .goal .big small{font-size:1rem; font-weight:700; margin-left:2px}
+
+  /* ---- 配分バー（シグネチャー）---- */
+  .barwrap{margin-top:20px}
+  .barlabel{font-size:.74rem; color:var(--ink-soft); margin-bottom:6px}
+  .bar{display:flex; height:46px; border-radius:7px; overflow:hidden; border:1px solid var(--line)}
+  .seg{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+       font-size:.7rem; font-weight:700; color:#fff; min-width:0; padding:0 2px; text-align:center;
+       white-space:nowrap; overflow:hidden; transition:flex-basis .3s}
+  .seg .amt{font-size:.66rem; font-weight:600; opacity:.92}
+  .seg.house{background:var(--goal)}
+  .seg.reform{background:var(--reform)}
+  .seg.cost{background:var(--cost)}
+  .legend{display:flex; gap:14px; margin-top:8px; flex-wrap:wrap; font-size:.74rem; color:var(--ink-soft)}
+  .legend span{display:flex; align-items:center; gap:5px}
+  .legend i{width:10px; height:10px; border-radius:3px; display:inline-block}
+
+  .note{margin-top:22px; font-size:.74rem; color:var(--ink-soft); line-height:1.6;
+        background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>マイホーム予算シミュレーター</h1>
+  <p class="lead">無理なく払える毎月の返済額から逆算して、<b>「結局いくらの物件まで狙えるか」</b>を出します。銀行の試算が出す“借りられる額”の先、自己資金・諸費用・リフォーム費まで引いた現実的な物件価格まで計算します。</p>
+
+  <div class="grid">
+    <!-- 入力 -->
+    <section class="card">
+      <h2>入力</h2>
+
+      <div class="field">
+        <label>毎月の返済可能額 <span class="sub">無理なく払える額</span></label>
+        <div class="inputline"><input id="monthly" type="number" min="0" value="8" step="0.5"><span class="unit">万円/月</span></div>
+      </div>
+
+      <div class="field two">
+        <div>
+          <label>金利 <span class="sub">年</span></label>
+          <div class="inputline"><input id="rate" type="number" min="0" value="1.0" step="0.1"><span class="unit">%</span></div>
+        </div>
+        <div>
+          <label>借入期間</label>
+          <div class="inputline"><input id="years" type="number" min="0" value="35" step="1"><span class="unit">年</span></div>
+        </div>
+      </div>
+
+      <div class="field two">
+        <div>
+          <label>手持ち現金</label>
+          <div class="inputline"><input id="cash" type="number" min="0" value="300" step="50"><span class="unit">万円</span></div>
+        </div>
+        <div>
+          <label>親からの援助</label>
+          <div class="inputline"><input id="gift" type="number" min="0" value="0" step="50"><span class="unit">万円</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>諸費用率 <span class="sub">資金総合計に対して</span></label>
+        <div class="inputline"><input id="costRate" type="number" min="0" value="10" step="1"><span class="unit">%</span></div>
+      </div>
+
+      <div class="field">
+        <label>リフォーム費用 <span class="sub">かけたい額</span></label>
+        <div class="inputline"><input id="reform" type="number" min="0" value="500" step="50"><span class="unit">万円</span></div>
+      </div>
+    </section>
+
+    <!-- 結果 -->
+    <section class="card">
+      <h2>試算結果</h2>
+      <div class="rows">
+        <div class="r"><span class="name">借入可能額</span><span class="val" id="o-loan">—</span></div>
+        <div class="r"><span class="name">＋ 自己資金（現金＋援助）</span><span class="val" id="o-self">—</span></div>
+        <div class="r sum"><span class="name">＝ 資金総合計</span><span class="val" id="o-total">—</span></div>
+        <div class="r minus"><span class="name" id="o-cost-name">− 諸費用</span><span class="val" id="o-cost">—</span></div>
+        <div class="r sum"><span class="name">＝ 購入資金</span><span class="val" id="o-budget">—</span></div>
+        <div class="r reform minus"><span class="name">− リフォーム費用</span><span class="val" id="o-reform">—</span></div>
+      </div>
+
+      <div class="goal">
+        <div class="lab">物件購入にかけられる額</div>
+        <div class="big"><span id="o-house">—</span><small>万円</small></div>
+      </div>
+
+      <div class="barwrap">
+        <div class="barlabel">資金総合計の使いみち</div>
+        <div class="bar" id="bar">
+          <div class="seg house" id="seg-house"></div>
+          <div class="seg reform" id="seg-reform"></div>
+          <div class="seg cost" id="seg-cost"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--goal)"></i>物件</span>
+          <span><i style="background:var(--reform)"></i>リフォーム</span>
+          <span><i style="background:var(--cost)"></i>諸費用</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="note">
+    ※ 試算結果は概算の参考値です。実際の借入可能額・融資条件は金融機関の審査によって決まり、ここでの計算を保証するものではありません。
+    諸費用は資金総合計に対する割合で簡易計算しています。借入可能額は元利均等返済を前提に算出しています。
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   マイホーム予算シミュレーター
+   骨子：返済可能額 → 借入可能額 → +自己資金 → −諸費用 → −リフォーム
+        → 物件にかけられる額
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+
+// 数値を「3,135.5」のようにカンマ区切り＋小数第1位まで整形
+const fmt = man => (Math.round(man * 10) / 10).toLocaleString("ja-JP", {
+  minimumFractionDigits: 1, maximumFractionDigits: 1
+});
+
+/* --- 核心：毎月返済額から「借入可能額」を逆算する ---
+   住宅ローンの元利均等返済の公式を、元金について解いた形。
+     P = M × (1 − (1+i)^−n) / i      （i≠0のとき）
+     P = M × n                        （i=0のとき）
+   M=毎月返済額, i=月利, n=返済回数(月)。単位は万円のまま計算してOK。 */
+function loanPrincipal(monthlyMan, annualRatePct, years){
+  const i = annualRatePct / 100 / 12;   // 月利
+  const n = years * 12;                 // 返済回数
+  if(i === 0) return monthlyMan * n;     // 無利息なら単純な掛け算
+  return monthlyMan * (1 - Math.pow(1 + i, -n)) / i;
+}
+
+function calc(){
+  // --- 入力を取得（空欄や負の数は0扱い）---
+  const nz = id => Math.max(0, parseFloat($(id).value) || 0);  // 0未満は0に丸める
+  const monthly  = nz("monthly");
+  const rate     = nz("rate");
+  const years    = nz("years");
+  const cash     = nz("cash");
+  const gift     = nz("gift");
+  const costRate = nz("costRate");
+  const reform   = nz("reform");
+
+  // --- 計算（骨子の順番どおり）---
+  const loan   = loanPrincipal(monthly, rate, years); // ① 借入可能額
+  const self   = cash + gift;                          // ② 自己資金
+  const total  = loan + self;                          // ③ 資金総合計
+  const cost   = total * (costRate / 100);             // ④ 諸費用
+  const budget = total - cost;                         // ⑤ 購入資金
+  const house  = Math.max(0, budget - reform);         // ⑥ 物件にかけられる額
+
+  // --- 表示 ---
+  $("o-loan").textContent   = fmt(loan)  + " 万円";
+  $("o-self").textContent   = fmt(self)  + " 万円";
+  $("o-total").textContent  = fmt(total) + " 万円";
+  $("o-cost-name").textContent = `− 諸費用（${costRate}%）`;
+  $("o-cost").textContent   = "−" + fmt(cost)   + " 万円";
+  $("o-budget").textContent = fmt(budget) + " 万円";
+  $("o-reform").textContent = "−" + fmt(reform) + " 万円";
+  $("o-house").textContent  = fmt(house);
+
+  // --- 配分バー：総合計を「物件・リフォーム・諸費用」で按分 ---
+  const denom = total > 0 ? total : 1;
+  const pct = v => (Math.max(0, v) / denom * 100);
+  $("seg-house").style.flexBasis  = pct(house)  + "%";
+  $("seg-reform").style.flexBasis = pct(reform) + "%";
+  $("seg-cost").style.flexBasis   = pct(cost)   + "%";
+  // セグメントが十分広いときだけ「名前＋金額」を出す
+  const segLabel = (pctVal, name, man) =>
+    pctVal > 14 ? `${name}<span class="amt">${fmt(man)}万円</span>` : "";
+  $("seg-house").innerHTML  = segLabel(pct(house),  "物件",       house);
+  $("seg-reform").innerHTML = segLabel(pct(reform), "リフォーム", reform);
+  $("seg-cost").innerHTML   = segLabel(pct(cost),   "諸費用",     cost);
+}
+
+// すべての入力欄の変化で再計算
+["monthly","rate","years","cash","gift","costRate","reform"]
+  .forEach(id => $(id).addEventListener("input", calc));
+
+calc(); // 初回計算
+</script>
+</body>
+</html>
