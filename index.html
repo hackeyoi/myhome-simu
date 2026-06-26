@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>マイホーム予算シミュレーター — 返済額から「狙える物件価格」を逆算</title>
+<title>住宅購入の予算は？登録不要の簡易シミュレータ｜返済額から逆算</title>
+<meta name="description" content="毎月の返済額・金利・自己資金から、無理なく買える物件価格を逆算する無料シミュレーター。住宅ローンの借入可能額に加え、諸費用・リフォーム費まで差し引いた現実的なマイホーム予算がわかります。" />
 <style>
   :root{
     --bg:#E9ECEA;
@@ -42,6 +43,9 @@
   .field:last-child{margin-bottom:0}
   label{display:block; font-size:.84rem; font-weight:600; margin-bottom:6px}
   label .sub{font-weight:400; color:var(--ink-soft); font-size:.76rem; margin-left:6px}
+  .grouplabel{display:block; font-size:.84rem; font-weight:600; margin-bottom:6px}
+  .grouplabel .sub{font-weight:400; color:var(--ink-soft); font-size:.76rem; margin-left:6px}
+  .subfields label{font-size:.78rem; color:var(--ink-soft); font-weight:600}
   .inputline{display:flex; align-items:center; gap:8px}
   input{
     flex:1; width:100%; padding:10px 12px; font-size:1rem; font-variant-numeric:tabular-nums;
@@ -87,12 +91,38 @@
 
   .note{margin-top:22px; font-size:.74rem; color:var(--ink-soft); line-height:1.6;
         background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+
+  /* ================= スマホ対応（600px以下でだけ効く） ================= */
+  @media(max-width:600px){
+    body{padding:18px 12px 48px}          /* 左右の余白を詰めて画面を広く使う */
+    h1{font-size:1.16rem; line-height:1.45}
+    .lead{font-size:.86rem; margin-bottom:18px}
+    .grid{gap:14px}
+    .card{padding:16px; border-radius:13px}
+
+    /* 入力欄を大きめにして指で押しやすく＆iOSの自動ズーム防止（16px以上） */
+    input{font-size:16px; padding:12px}
+    label{font-size:.9rem}
+
+    /* 「2つ並び」は窮屈なので縦並びに戻す */
+    .two{grid-template-columns:1fr; gap:13px}
+
+    /* 結果の数字を少し大きく、最終アンサーは画面幅に合わせて調整 */
+    .r .name{font-size:.9rem}
+    .r .val{font-size:1.06rem}
+    .goal .big{font-size:1.9rem}
+
+    /* 配分バーを高くして、狭くてもラベルが潰れにくいように */
+    .bar{height:52px}
+    .seg{font-size:.72rem}
+    .seg .amt{font-size:.66rem}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>マイホーム予算シミュレーター</h1>
-  <p class="lead">無理なく払える毎月の返済額から逆算して、<b>「結局いくらの物件まで狙えるか」</b>を出します。銀行の試算が出す“借りられる額”の先、自己資金・諸費用・リフォーム費まで引いた現実的な物件価格まで計算します。</p>
+  <h1>住宅購入予算 簡易シミュレータ</h1>
+  <p class="lead">無理なく払える毎月の返済額から、<b>「結局いくらの物件まで買えるか」</b>を計算します。銀行の試算が出す“借りられる額”の先、自己資金・諸費用・リフォーム費まで引いた、現実的なマイホーム予算がわかります。</p>
 
   <div class="grid">
     <!-- 入力 -->
@@ -100,40 +130,43 @@
       <h2>入力</h2>
 
       <div class="field">
-        <label>毎月の返済可能額 <span class="sub">無理なく払える額</span></label>
-        <div class="inputline"><input id="monthly" type="number" min="0" value="8" step="0.5"><span class="unit">万円/月</span></div>
+        <label>毎月の返済可能額 <span class="sub">管理費・修繕費などは含まない</span></label>
+        <div class="inputline"><input id="monthly" type="number" inputmode="decimal" min="0" value="8" step="0.5"><span class="unit">万円/月</span></div>
       </div>
 
       <div class="field two">
         <div>
           <label>金利 <span class="sub">年</span></label>
-          <div class="inputline"><input id="rate" type="number" min="0" value="1.0" step="0.1"><span class="unit">%</span></div>
+          <div class="inputline"><input id="rate" type="number" inputmode="decimal" min="0" value="1.0" step="0.1"><span class="unit">%</span></div>
         </div>
         <div>
           <label>借入期間</label>
-          <div class="inputline"><input id="years" type="number" min="0" value="35" step="1"><span class="unit">年</span></div>
+          <div class="inputline"><input id="years" type="number" inputmode="decimal" min="0" value="35" step="1"><span class="unit">年</span></div>
         </div>
       </div>
 
-      <div class="field two">
-        <div>
-          <label>手持ち現金</label>
-          <div class="inputline"><input id="cash" type="number" min="0" value="300" step="50"><span class="unit">万円</span></div>
-        </div>
-        <div>
-          <label>親からの援助</label>
-          <div class="inputline"><input id="gift" type="number" min="0" value="0" step="50"><span class="unit">万円</span></div>
+      <div class="field">
+        <span class="grouplabel">自己資金（頭金）</span>
+        <div class="two subfields">
+          <div>
+            <label>現金</label>
+            <div class="inputline"><input id="cash" type="number" inputmode="decimal" min="0" value="300" step="10"><span class="unit">万円</span></div>
+          </div>
+          <div>
+            <label>援助等</label>
+            <div class="inputline"><input id="gift" type="number" inputmode="decimal" min="0" value="0" step="10"><span class="unit">万円</span></div>
+          </div>
         </div>
       </div>
 
       <div class="field">
         <label>諸費用率 <span class="sub">資金総合計に対して</span></label>
-        <div class="inputline"><input id="costRate" type="number" min="0" value="10" step="1"><span class="unit">%</span></div>
+        <div class="inputline"><input id="costRate" type="number" inputmode="decimal" min="0" value="10" step="1"><span class="unit">%</span></div>
       </div>
 
       <div class="field">
-        <label>リフォーム費用 <span class="sub">かけたい額</span></label>
-        <div class="inputline"><input id="reform" type="number" min="0" value="500" step="50"><span class="unit">万円</span></div>
+        <label>リフォーム・初期費用 <span class="sub">新築はオプションや家具家電など</span></label>
+        <div class="inputline"><input id="reform" type="number" inputmode="decimal" min="0" value="500" step="10"><span class="unit">万円</span></div>
       </div>
     </section>
 
@@ -142,11 +175,11 @@
       <h2>試算結果</h2>
       <div class="rows">
         <div class="r"><span class="name">借入可能額</span><span class="val" id="o-loan">—</span></div>
-        <div class="r"><span class="name">＋ 自己資金（現金＋援助）</span><span class="val" id="o-self">—</span></div>
+        <div class="r"><span class="name">＋ 自己資金（頭金）</span><span class="val" id="o-self">—</span></div>
         <div class="r sum"><span class="name">＝ 資金総合計</span><span class="val" id="o-total">—</span></div>
         <div class="r minus"><span class="name" id="o-cost-name">− 諸費用</span><span class="val" id="o-cost">—</span></div>
         <div class="r sum"><span class="name">＝ 購入資金</span><span class="val" id="o-budget">—</span></div>
-        <div class="r reform minus"><span class="name">− リフォーム費用</span><span class="val" id="o-reform">—</span></div>
+        <div class="r reform minus"><span class="name">− リフォーム・初期費用</span><span class="val" id="o-reform">—</span></div>
       </div>
 
       <div class="goal">
@@ -163,7 +196,7 @@
         </div>
         <div class="legend">
           <span><i style="background:var(--goal)"></i>物件</span>
-          <span><i style="background:var(--reform)"></i>リフォーム</span>
+          <span><i style="background:var(--reform)"></i>リフォーム等</span>
           <span><i style="background:var(--cost)"></i>諸費用</span>
         </div>
       </div>
@@ -241,7 +274,7 @@ function calc(){
   const segLabel = (pctVal, name, man) =>
     pctVal > 14 ? `${name}<span class="amt">${fmt(man)}万円</span>` : "";
   $("seg-house").innerHTML  = segLabel(pct(house),  "物件",       house);
-  $("seg-reform").innerHTML = segLabel(pct(reform), "リフォーム", reform);
+  $("seg-reform").innerHTML = segLabel(pct(reform), "リフォーム等", reform);
   $("seg-cost").innerHTML   = segLabel(pct(cost),   "諸費用",     cost);
 }
 
