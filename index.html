@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="google-site-verification" content="UoWtztZFGtAbmpQxy6kKw-VGbDlq0MT1NpOCJrkC9Dk" />
-<title>住宅購入の予算は？登録不要の簡易シミュレータ｜返済額から逆算</title>
+<title>住宅購入予算シミュレータ｜返済額から逆算・登録不要</title>
 <meta name="description" content="毎月の返済額・金利・自己資金から、無理なく買える物件価格を逆算する無料シミュレーター。住宅ローンの借入可能額に加え、諸費用・リフォーム費まで差し引いた現実的なマイホーム予算がわかります。" />
 <style>
   :root{
@@ -30,7 +30,7 @@
   .wrap{max-width:880px; margin:0 auto}
   h1{font-size:1.3rem; letter-spacing:-.01em; margin:0 0 4px}
   .lead{font-size:.9rem; color:var(--ink-soft); margin:0 0 24px; max-width:56ch}
-  .lead b{color:var(--goal); font-weight:700}
+  .lead b{font-weight:700}
 
   .grid{display:grid; grid-template-columns:0.95fr 1.05fr; gap:18px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
@@ -119,12 +119,11 @@
     .seg .amt{font-size:.66rem}
   }
   /* ---- サイト内ナビ・フッター（全ページ共通） ---- */
-  .sitenav{max-width:880px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:6px 18px;
-           align-items:center; font-size:.84rem}
+  .sitenav{max-width:880px; margin:0 auto 20px; display:flex; align-items:center; font-size:.84rem}
   .sitenav .brand{font-weight:800; color:var(--ink); text-decoration:none; margin-right:auto}
   .sitenav a{color:var(--ink-soft); text-decoration:none}
   .sitenav a:hover{color:var(--in)}
-  @media(max-width:600px){.sitenav{font-size:.8rem; gap:4px 14px}}
+  .sitenav .brand:hover{color:var(--in)}
 
   .sitefoot{max-width:880px; margin:34px auto 0; padding-top:18px; border-top:1px solid var(--line);
             display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.78rem; color:var(--ink-soft)}
@@ -137,9 +136,6 @@
 <nav class="sitenav">
   <a href="index.html" class="brand">住宅購入予算シミュレータ</a>
   <a href="index.html">ホーム</a>
-  <a href="profile.html">運営者情報</a>
-  <a href="privacy.html">プライバシーポリシー</a>
-  <a href="contact.html">お問い合わせ</a>
 </nav>
 <div class="wrap">
   <h1>住宅購入予算 簡易シミュレータ</h1>

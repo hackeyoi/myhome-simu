@@ -15,12 +15,11 @@
   body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
        line-height:1.9; -webkit-font-smoothing:antialiased; padding:30px 18px 70px}
 
-  .sitenav{max-width:640px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:6px 18px;
-           align-items:center; font-size:.84rem}
+  .sitenav{max-width:640px; margin:0 auto 20px; display:flex; align-items:center; font-size:.84rem}
   .sitenav .brand{font-weight:800; color:var(--ink); text-decoration:none; margin-right:auto}
   .sitenav a{color:var(--ink-soft); text-decoration:none}
   .sitenav a:hover{color:var(--in)}
-  @media(max-width:600px){.sitenav{font-size:.8rem; gap:4px 14px}}
+  .sitenav .brand:hover{color:var(--in)}
 
   .wrap{max-width:640px; margin:0 auto}
   .card{background:var(--card); border:1px solid var(--line); border-radius:15px; padding:28px 26px}
@@ -49,9 +48,6 @@
 <nav class="sitenav">
   <a href="index.html" class="brand">住宅購入予算シミュレータ</a>
   <a href="index.html">ホーム</a>
-  <a href="profile.html">運営者情報</a>
-  <a href="privacy.html">プライバシーポリシー</a>
-  <a href="contact.html">お問い合わせ</a>
 </nav>
 
 <div class="wrap">
@@ -59,13 +55,6 @@
     <h1>お問い合わせ</h1>
     <p class="intro">当サイトに関するご意見・ご質問は、以下のフォームよりお送りください。いただいた内容には、必要に応じて運営者よりご返信いたします。</p>
 
-    <!--
-      ▼▼ 設定メモ（このコメントは画面には表示されません） ▼▼
-      Formspree に登録後、発行される送信先URL（https://formspree.io/f/xxxxxxxx）を
-      下の <form action="..."> の "FORMSPREE_ENDPOINT" の部分に貼り替えてください。
-      それまではフォームは送信できません。
-      ▲▲▲▲
-    -->
     <form action="https://formspree.io/f/xlgyvypr" method="POST">
       <label for="name">お名前（ニックネーム可）</label>
       <input type="text" id="name" name="name" required>
