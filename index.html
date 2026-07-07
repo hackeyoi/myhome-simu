@@ -118,9 +118,29 @@
     .seg{font-size:.72rem}
     .seg .amt{font-size:.66rem}
   }
+  /* ---- サイト内ナビ・フッター（全ページ共通） ---- */
+  .sitenav{max-width:880px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:6px 18px;
+           align-items:center; font-size:.84rem}
+  .sitenav .brand{font-weight:800; color:var(--ink); text-decoration:none; margin-right:auto}
+  .sitenav a{color:var(--ink-soft); text-decoration:none}
+  .sitenav a:hover{color:var(--in)}
+  @media(max-width:600px){.sitenav{font-size:.8rem; gap:4px 14px}}
+
+  .sitefoot{max-width:880px; margin:34px auto 0; padding-top:18px; border-top:1px solid var(--line);
+            display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.78rem; color:var(--ink-soft)}
+  .sitefoot a{color:var(--ink-soft); text-decoration:none}
+  .sitefoot a:hover{color:var(--in)}
+  .sitefoot .copy{margin-right:auto}
 </style>
 </head>
 <body>
+<nav class="sitenav">
+  <a href="index.html" class="brand">住宅購入予算シミュレータ</a>
+  <a href="index.html">ホーム</a>
+  <a href="profile.html">運営者情報</a>
+  <a href="privacy.html">プライバシーポリシー</a>
+  <a href="contact.html">お問い合わせ</a>
+</nav>
 <div class="wrap">
   <h1>住宅購入予算 簡易シミュレータ</h1>
   <p class="lead">無理なく払える毎月の返済額から、<b>「結局いくらの物件まで買えるか」</b>を計算します。銀行の試算が出す“借りられる額”の先、自己資金・諸費用・リフォーム費まで引いた、現実的なマイホーム予算がわかります。</p>
@@ -208,6 +228,13 @@
     ※ 試算結果は概算の参考値です。実際の借入可能額・融資条件は金融機関の審査によって決まり、ここでの計算を保証するものではありません。
     諸費用は資金総合計に対する割合で簡易計算しています。借入可能額は元利均等返済を前提に算出しています。
   </div>
+
+  <footer class="sitefoot">
+    <span class="copy">© 2026 hackeyoi</span>
+    <a href="profile.html">運営者情報</a>
+    <a href="privacy.html">プライバシーポリシー</a>
+    <a href="contact.html">お問い合わせ</a>
+  </footer>
 </div>
 
 <script>
